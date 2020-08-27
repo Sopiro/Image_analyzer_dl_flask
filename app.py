@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, url_for, flash, redirect
 import os
 from werkzeug.utils import secure_filename
-import shutil
 
 app = Flask(__name__)
 app.debug = True

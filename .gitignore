@@ -1,2 +1,4 @@
 __pycache__
 .idea
+dl/annotations
+dl/checkpoints
