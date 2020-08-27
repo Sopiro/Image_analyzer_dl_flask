@@ -20,16 +20,17 @@ def index():
     return render_template("index.html")
 
 
-@app.route('/fileUpload', methods=['GET', 'POST'])
+@app.route('/fileUpload', methods=['POST'])
 def file_upload():
     if request.method == 'POST':
         if 'file' not in request.files:
-            return redirect(request.url)
+            return redirect('/')
 
         f = request.files['file']
 
         if f.filename == '':
-            return redirect(request.url)
+            flash('파일을 선택해 주세요')
+            return redirect('/')
 
         if f and allowed_file(f.filename):
             filename = secure_filename(f.filename)
@@ -37,7 +38,7 @@ def file_upload():
 
             return render_template('result.html', filename=filename)
         else:
-            return redirect(request.url)
+            return redirect('/')
 
 
 @app.route('/display/<filename>')
@@ -53,6 +54,7 @@ def delete_file(filename):
         pass
     return redirect(url_for('index'))
 
+
 # @app.teardown_request
 # def teardown_request(ex):
 #     for f in os.listdir(app.config['UPLOAD_FOLDER']):
@@ -60,4 +62,8 @@ def delete_file(filename):
 
 
 if __name__ == '__main__':
+    if not os.path.exists("static"):
+        os.mkdir('static')
+        os.mkdir('static/uploads')
+
     app.run(host='0.0.0.0')

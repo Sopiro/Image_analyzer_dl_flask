@@ -3,11 +3,16 @@
     <title>테스트</title>
 </head>
 <body>
-    <h1>파일 선택</h1>
-    <form method="POST"
-    action="/fileUpload"
-    enctype="multipart/form-data">
-        <input type="file" name="file" />
-        <input type="submit" value="전송" />
-    </form>
+<h1>파일 선택</h1>
+{% with msg = get_flashed_messages() %}
+    {% if msg %}
+        <p>{{msg[0]}}</p>
+    {% endif %}
+{% endwith %}
+<form method="POST"
+      action="/fileUpload"
+      enctype="multipart/form-data">
+    <input type="file" name="file"/>
+    <input type="submit" value="전송"/>
+</form>
 </body>
