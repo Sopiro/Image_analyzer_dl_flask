@@ -2,8 +2,10 @@ from flask import Flask, render_template, request, url_for, flash, redirect
 import os
 from werkzeug.utils import secure_filename
 
+from caption_generator import generate_caption
+
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.secret_key = 'sopiro'
 
@@ -35,7 +37,10 @@ def file_upload():
             filename = secure_filename(f.filename)
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            return render_template('result.html', filename=filename)
+            image_path = os.path.abspath('static/uploads/' + filename)
+            caption = generate_caption(image_path)
+
+            return render_template('result.html', filename=filename, caption=caption)
         else:
             return redirect('/')
 
@@ -64,5 +69,9 @@ if __name__ == '__main__':
     if not os.path.exists("static"):
         os.mkdir('static')
         os.mkdir('static/uploads')
+
+    # print(os.path.abspath('static/uploads/image.jpg'))
+    # print(generate_caption(os.path.abspath('static/uploads/image.jpg')))
+    # print(generate_caption(os.path.abspath('static/uploads/elephant.jpg')))
 
     app.run(host='0.0.0.0')

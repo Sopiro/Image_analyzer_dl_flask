@@ -2,15 +2,20 @@
 <html>
 
 <head>
-    <title>Index</title>
+    <title>결과</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
 <form action="{{ url_for('delete_file', filename=filename) }}">
-    <input type="submit" value="삭제">
+    <input type="submit" value="돌아가기">
 </form>
 <br>
-<img src="{{ url_for('display_image', filename=filename) }}" width="800px" height="800px">
+
+<h1>{{caption}}</h1>
+
+<img src="{{ url_for('display_image', filename=filename) }}" width="800px">
 </body>
 
 </html>
