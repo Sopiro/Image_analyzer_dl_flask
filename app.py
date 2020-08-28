@@ -3,11 +3,15 @@ import os
 from werkzeug.utils import secure_filename
 
 from caption_generator import generate_caption
+import requests
 
 app = Flask(__name__)
 app.debug = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.secret_key = 'sopiro'
+
+do_translation = True
+KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
@@ -40,7 +44,15 @@ def file_upload():
             image_path = os.path.abspath('static/uploads/' + filename)
             caption = generate_caption(image_path)
 
-            return render_template('result.html', filename=filename, caption=caption)
+            if do_translation:
+                headers = {'Authorization': 'KakaoAK {}'.format(KAKAO_API_KEY)}
+                params = {'query': caption, 'src_lang': 'en', 'target_lang': 'kr'}
+                res = requests.post(url='https://dapi.kakao.com/v2/translation/translate', headers=headers, data=params)
+                korean_caption = res.json()['translated_text'][0][0]
+
+                return render_template('result.html', filename=filename, en_caption=caption, kr_caption=korean_caption)
+            else:
+                return render_template('result.html', filename=filename, en_caption=caption)
         else:
             return redirect('/')
 
@@ -74,4 +86,4 @@ if __name__ == '__main__':
     # print(generate_caption(os.path.abspath('static/uploads/image.jpg')))
     # print(generate_caption(os.path.abspath('static/uploads/elephant.jpg')))
 
-    app.run(host='0.0.0.0')
+    app.run(host='127.0.0.1')

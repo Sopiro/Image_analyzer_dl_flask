@@ -3,3 +3,4 @@ __pycache__
 caption_generator/annotations
 caption_generator/checkpoints
 static/uploads
+test.py
