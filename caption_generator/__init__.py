@@ -36,9 +36,16 @@ with open(annotation_file, 'r') as f:
 
 # Store captions and image names in vectors
 all_captions = []
+dup = [False] * 600000
 
 for annot in annotations['annotations']:
     caption = '<start> ' + annot['caption'] + ' <end>'
+
+    image_id = annot['image_id']
+    if dup[image_id]:
+        continue
+    dup[image_id] = True
+
     all_captions.append(caption)
 
 # Shuffle captions and image_names together
@@ -53,7 +60,7 @@ hidden_layer = image_model.layers[-1].output
 image_features_extract_model = tf.keras.Model(new_input, hidden_layer)
 
 # Choose the top 5000 words from the vocabulary
-num_words = 20000
+num_words = 10000
 tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=num_words, oov_token="<unk>", filters='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ ')
 tokenizer.fit_on_texts(train_captions)
 
@@ -64,11 +71,12 @@ train_seqs = tokenizer.texts_to_sequences(train_captions)
 max_length = max(len(t) for t in train_seqs)
 
 embedding_dim = 128
-units = 512
+rnn_units = 800
+fc_units = 512
 vocab_size = num_words + 1
 
 encoder = models.CNN_Encoder(embedding_dim)
-decoder = models.RNN_Decoder(embedding_dim, units, vocab_size)
+decoder = models.RNN_Decoder(embedding_dim, rnn_units, fc_units, vocab_size)
 optimizer = tf.keras.optimizers.Adam()
 
 # Checkpoints
@@ -115,7 +123,6 @@ def generate_caption(image_path):
         dec_input = tf.expand_dims([predicted_id], 0)
 
     return ' '.join(result)
-
 
 # if __name__ == '__main__':
 #     image_url = 'https://tensorflow.org/images/surf.jpg'
