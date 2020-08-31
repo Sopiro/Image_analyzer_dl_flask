@@ -10,7 +10,7 @@ app.debug = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.secret_key = 'sopiro'
 
-do_translation = True
+do_translation = False
 KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -43,10 +43,11 @@ def file_upload():
 
             image_path = os.path.abspath('static/uploads/' + filename)
             caption = generate_caption(image_path)
+            pre = ''
 
             if do_translation:
                 headers = {'Authorization': 'KakaoAK {}'.format(KAKAO_API_KEY)}
-                params = {'query': caption, 'src_lang': 'en', 'target_lang': 'kr'}
+                params = {'query': pre + caption, 'src_lang': 'en', 'target_lang': 'kr'}
                 res = requests.post(url='https://dapi.kakao.com/v2/translation/translate', headers=headers, data=params)
                 korean_caption = res.json()['translated_text'][0][0]
 
@@ -86,4 +87,4 @@ if __name__ == '__main__':
     # print(generate_caption(os.path.abspath('static/uploads/image.jpg')))
     # print(generate_caption(os.path.abspath('static/uploads/elephant.jpg')))
 
-    app.run(host='127.0.0.1')
+    app.run(host='0.0.0.0')

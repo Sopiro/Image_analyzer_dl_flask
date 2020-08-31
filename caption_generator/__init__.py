@@ -16,32 +16,38 @@ if gpus:
         # Memory growth must be set before GPUs have been initialized
         print(e)
 
-# Download caption annotation files
-
-annotation_folder = '/annotations/'
-
-if not os.path.exists(os.path.dirname(__file__) + annotation_folder):
-    annotation_zip = tf.keras.utils.get_file('captions.zip',
-                                             cache_subdir=os.path.abspath('..'),
-                                             origin='http://images.cocodataset.org/annotations/annotations_trainval2014.zip',
-                                             extract=True)
-    annotation_file = os.path.dirname(annotation_zip) + '/annotations/captions_train2014.json'
-    os.remove(annotation_zip)
-else:
-    annotation_file = os.path.dirname(__file__) + '/annotations/captions_train2014.json'
+annotation_folder = './annotations/'
+path = os.path.dirname(__file__)
+annotation_train = path + '/annotations/captions_train2014.json'
+annotation_val = path + '/annotations/captions_val2014.json'
 
 # Read the json file
-with open(annotation_file, 'r') as f:
-    annotations = json.load(f)
+with open(annotation_train, 'r') as f:
+    annotations_train = json.load(f)
+
+with open(annotation_val, 'r') as f:
+    annotations_val = json.load(f)
 
 # Store captions and image names in vectors
 all_captions = []
+all_img_name_vector = []
+
 dup = [False] * 600000
 
-for annot in annotations['annotations']:
+for annot in annotations_train['annotations']:
     caption = '<start> ' + annot['caption'] + ' <end>'
-
     image_id = annot['image_id']
+
+    if dup[image_id]:
+        continue
+    dup[image_id] = True
+
+    all_captions.append(caption)
+
+for annot in annotations_val['annotations']:
+    caption = '<start> ' + annot['caption'] + ' <end>'
+    image_id = annot['image_id']
+
     if dup[image_id]:
         continue
     dup[image_id] = True
@@ -60,7 +66,7 @@ hidden_layer = image_model.layers[-1].output
 image_features_extract_model = tf.keras.Model(new_input, hidden_layer)
 
 # Choose the top 5000 words from the vocabulary
-num_words = 10000
+num_words = 20000
 tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=num_words, oov_token="<unk>", filters='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ ')
 tokenizer.fit_on_texts(train_captions)
 
@@ -71,21 +77,20 @@ train_seqs = tokenizer.texts_to_sequences(train_captions)
 max_length = max(len(t) for t in train_seqs)
 
 embedding_dim = 128
-rnn_units = 800
-fc_units = 512
+feature_dim = 64
+rnn_units = 512
+fc_units = 1024
 vocab_size = num_words + 1
 
-encoder = models.CNN_Encoder(embedding_dim)
+encoder = models.CNN_Encoder(feature_dim)
 decoder = models.RNN_Decoder(embedding_dim, rnn_units, fc_units, vocab_size)
-optimizer = tf.keras.optimizers.Adam()
 
 # Checkpoints
 
 checkpoint_path = os.path.dirname(__file__) + "/checkpoints"
 
 ckpt = tf.train.Checkpoint(encoder=encoder,
-                           decoder=decoder,
-                           optimizer=optimizer)
+                           decoder=decoder)
 ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=10)
 
 if ckpt_manager.latest_checkpoint:
