@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, url_for, flash, redirect
+from flask import Flask, render_template, request, url_for, flash, redirect, jsonify
 import os
 from werkzeug.utils import secure_filename
 
 from caption_generator import generate_caption
+from ocr import ocr
+from color_analyzer import analyze_color
 import requests
+import json
 
 app = Flask(__name__)
 app.debug = False
@@ -11,9 +14,12 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.secret_key = 'sopiro'
 
 do_translation = False
+remain_upload_image = True
 KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+
+ai_program = {'color': analyze_color, 'ocr': ocr, 'caption': generate_caption}
 
 
 def allowed_file(filename):
@@ -23,6 +29,29 @@ def allowed_file(filename):
 @app.route('/')
 def index():
     return render_template("index.html")
+
+
+@app.route('/rest/<mode>', methods=['POST'])
+def rest(mode):
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return 'No file', 500
+
+        f = request.files['file']
+
+        if f and allowed_file(f.filename):
+            filename = secure_filename(f.filename)
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            image_path = os.path.abspath('static/uploads/' + filename)
+
+            result = ai_program[mode](image_path)
+
+            if not remain_upload_image:
+                os.remove(image_path)
+
+            return json.dumps({'result': result}, ensure_ascii=False), 200
+        else:
+            return 'Not allowed file format', 500
 
 
 @app.route('/fileUpload', methods=['POST'])
@@ -43,7 +72,7 @@ def file_upload():
 
             image_path = os.path.abspath('static/uploads/' + filename)
             caption = generate_caption(image_path)
-            pre = ''
+            pre = 'it seems like '
 
             if do_translation:
                 headers = {'Authorization': 'KakaoAK {}'.format(KAKAO_API_KEY)}
