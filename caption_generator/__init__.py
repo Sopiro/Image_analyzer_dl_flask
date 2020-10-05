@@ -2,7 +2,7 @@ import tensorflow as tf
 from sklearn.utils import shuffle
 import os
 import json
-import models
+from . import models
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:

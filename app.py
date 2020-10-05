@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, url_for, flash, redirect, jsonify
 import os
 from werkzeug.utils import secure_filename
-
-from caption_generator import generate_caption
-from ocr import ocr
-from color_analyzer import analyze_color
 import requests
 import json
+
+from caption_generator import generate_caption
+from ocr import kakao_ocr
+from color_analyzer import analyze_color
+from translator import kakao_translator
 
 app = Flask(__name__)
 app.debug = False
@@ -17,9 +18,9 @@ do_translation = False
 remain_upload_image = True
 KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-ai_program = {'color': analyze_color, 'ocr': ocr, 'caption': generate_caption}
+ai_program = {'color': analyze_color, 'ocr': kakao_ocr, 'caption': generate_caption}
 
 
 def allowed_file(filename):
@@ -44,7 +45,18 @@ def rest(mode):
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image_path = os.path.abspath('static/uploads/' + filename)
 
-            result = ai_program[mode](image_path)
+            if mode == 'color':
+                result = analyze_color(image_path)
+            elif mode == 'ocr':
+                result = kakao_ocr(image_path, KAKAO_API_KEY)
+            elif mode == 'caption':
+                result = generate_caption(image_path)
+
+                if do_translation:
+                    result = kakao_translator('it seems like ' + result, KAKAO_API_KEY)
+            else:
+                return 'Mode error: ' + mode, 500
+            print(result)
 
             if not remain_upload_image:
                 os.remove(image_path)
@@ -75,10 +87,7 @@ def file_upload():
             pre = 'it seems like '
 
             if do_translation:
-                headers = {'Authorization': 'KakaoAK {}'.format(KAKAO_API_KEY)}
-                params = {'query': pre + caption, 'src_lang': 'en', 'target_lang': 'kr'}
-                res = requests.post(url='https://dapi.kakao.com/v2/translation/translate', headers=headers, data=params)
-                korean_caption = res.json()['translated_text'][0][0]
+                korean_caption = kakao_translator(pre + caption)
 
                 return render_template('result.html', filename=filename, en_caption=caption, kr_caption=korean_caption)
             else:
