@@ -3,6 +3,8 @@ from sklearn.utils import shuffle
 import os
 import json
 from . import models
+import matplotlib.pyplot as plt
+import image_to_numpy
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -99,8 +101,14 @@ if ckpt_manager.latest_checkpoint:
 
 # Function for preprocessing
 def load_image(image_path):
-    img = tf.io.read_file(image_path)
-    img = tf.image.decode_jpeg(img, channels=3)
+    # img = tf.io.read_file(image_path)
+    # img = tf.image.decode_jpeg(img, channels=3)
+
+    img = image_to_numpy.load_image_file(image_path)
+
+    plt.imshow(img)
+    plt.show()
+
     img = tf.image.resize(img, (299, 299))
     img = tf.keras.applications.inception_v3.preprocess_input(img)
     return img, image_path

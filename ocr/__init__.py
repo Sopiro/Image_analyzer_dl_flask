@@ -1,6 +1,9 @@
 import cv2
 import requests
 import os
+import matplotlib.pyplot as plt
+import image_to_numpy
+import numpy as np
 
 LIMIT_PX = 1024
 LIMIT_BYTE = 1024 * 1024  # 1MB
@@ -48,11 +51,12 @@ def kakao_ocr(image_path: str, api_key: str):
 
     headers = {'Authorization': 'KakaoAK {}'.format(api_key)}
 
-    image = cv2.imread(image_path)
-    jpeg_image = cv2.imencode(".jpg", image)[1]
-    data = jpeg_image.tobytes()
-
+    image = image_to_numpy.load_image_file(image_path)
+    image = cv2.imencode('.png', image)[1]
+    data = image.tobytes()
     api_response = requests.post(API_URL, headers=headers, files={"image": data}).json()
+
+    print(api_response)
 
     if resize_impath is not None:
         os.remove(resize_impath)
@@ -66,9 +70,10 @@ def kakao_ocr(image_path: str, api_key: str):
 
 
 def main():
-    image_path = 'C:/Users/Sopiro/test.jpg'
+    image_path = 'C:/Users/Sopiro/PycharmProjects/flask_app/static/uploads/2020-10-31_213104.jpg'
+    # image_path = 'C:/Users/Sopiro/test.jpg'
 
-    output = kakao_ocr(image_path)
+    output = kakao_ocr(image_path, '1b9ef11c3bdeaa8cb71013c0e2ecb9f9')
 
     print(output)
 

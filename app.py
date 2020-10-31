@@ -20,7 +20,9 @@ KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-ai_program = {'color': analyze_color, 'ocr': kakao_ocr, 'caption': generate_caption}
+ai_program = {'color': analyze_color,
+              'ocr': kakao_ocr,
+              'caption': generate_caption}
 
 
 def allowed_file(filename):
