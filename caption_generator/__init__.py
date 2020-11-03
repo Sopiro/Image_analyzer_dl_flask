@@ -106,8 +106,8 @@ def load_image(image_path):
 
     img = image_to_numpy.load_image_file(image_path)
 
-    plt.imshow(img)
-    plt.show()
+    # plt.imshow(img)
+    # plt.show()
 
     img = tf.image.resize(img, (299, 299))
     img = tf.keras.applications.inception_v3.preprocess_input(img)

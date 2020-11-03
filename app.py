@@ -14,8 +14,8 @@ app.debug = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.secret_key = 'sopiro'
 
-do_translation = False
-remain_upload_image = True
+do_translation = True
+remain_upload_image = False
 KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}

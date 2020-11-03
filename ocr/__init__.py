@@ -70,8 +70,8 @@ def kakao_ocr(image_path: str, api_key: str):
 
 
 def main():
-    image_path = 'C:/Users/Sopiro/PycharmProjects/flask_app/static/uploads/2020-10-31_213104.jpg'
-    # image_path = 'C:/Users/Sopiro/test.jpg'
+    # image_path = 'C:/Users/Sopiro/PycharmProjects/flask_app/static/uploads/2020-10-31_213104.jpg'
+    image_path = 'C:/Users/Sopiro/test.jpg'
 
     output = kakao_ocr(image_path, '1b9ef11c3bdeaa8cb71013c0e2ecb9f9')
 
