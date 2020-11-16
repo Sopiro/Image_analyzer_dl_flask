@@ -8,13 +8,14 @@ from caption_generator import generate_caption
 from ocr import kakao_ocr
 from color_analyzer import analyze_color
 from translator import kakao_translator
+from werkzeug.datastructures import ImmutableMultiDict
 
 app = Flask(__name__)
 app.debug = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.secret_key = 'sopiro'
 
-do_translation = True
+do_translation = False
 remain_upload_image = False
 KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
@@ -42,15 +43,32 @@ def rest(mode):
 
         f = request.files['file']
 
+        form_data = dict(request.form)
+
         if f and allowed_file(f.filename):
             filename = secure_filename(f.filename)
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image_path = os.path.abspath('static/uploads/' + filename)
 
             if mode == 'color':
-                result = analyze_color(image_path)
+
+                if form_data['count'] is not None:
+                    count = int(form_data['count'])
+                else:
+                    count = 1
+
+                color_res = analyze_color(image_path, count)
+
+                result = ''
+                for i in range(count):
+                    if do_translation:
+                        result = result + kakao_translator(color_res[i][1] + '.\n' + color_res[i][3] + '.\n', KAKAO_API_KEY)
+                    else:
+                        result = result + color_res[i][1] + ', ' + color_res[i][3] + '\n'
+
             elif mode == 'ocr':
                 result = kakao_ocr(image_path, KAKAO_API_KEY)
+
             elif mode == 'caption':
                 result = generate_caption(image_path)
 
@@ -58,7 +76,6 @@ def rest(mode):
                     result = kakao_translator('it seems like ' + result, KAKAO_API_KEY)
             else:
                 return 'Mode error: ' + mode, 500
-            print(result)
 
             if not remain_upload_image:
                 os.remove(image_path)
@@ -89,7 +106,7 @@ def file_upload():
             pre = 'it seems like '
 
             if do_translation:
-                korean_caption = kakao_translator(pre + caption)
+                korean_caption = kakao_translator(pre + caption, KAKAO_API_KEY)
 
                 return render_template('result.html', filename=filename, en_caption=caption, kr_caption=korean_caption)
             else:
