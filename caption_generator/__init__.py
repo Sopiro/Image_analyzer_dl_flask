@@ -115,7 +115,6 @@ def evaluate(image):
 
 
 def decode(seq):
-    print(seq)
     predicted_caption = [tokenizer.index_word[i] for i in seq[1:] if i < vocab_size]
 
     return ' '.join(predicted_caption)

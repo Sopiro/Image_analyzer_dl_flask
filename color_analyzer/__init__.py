@@ -18,7 +18,8 @@ def analyze_color(image_path, candidates=2):
     ar = np.reshape(ar, newshape=(-1, ar.shape[-1])).astype(float)
 
     # print('finding clusters')
-    codes, dist = kmeans2(ar, NUM_CLUSTERS)
+
+    codes, dist = kmeans(ar, NUM_CLUSTERS)
 
     # print('cluster centres:\n', codes)
 

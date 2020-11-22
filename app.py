@@ -1,22 +1,20 @@
 from flask import Flask, render_template, request, url_for, flash, redirect, jsonify
 import os
 from werkzeug.utils import secure_filename
-import requests
 import json
 
 from caption_generator import generate_caption
 from ocr import kakao_ocr
 from color_analyzer import analyze_color
 from translator import kakao_translator
-from werkzeug.datastructures import ImmutableMultiDict
 
 app = Flask(__name__)
 app.debug = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.secret_key = 'sopiro'
 
-do_translation = False
-remain_upload_image = False
+translate_enabled = True
+remain_upload_image = True
 KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -50,21 +48,45 @@ def rest(mode):
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image_path = os.path.abspath('static/uploads/' + filename)
 
-            if mode == 'color':
+            do_translate = False
+            if 'translate' in form_data:
+                do_translate = True if form_data['translate'] == 'true' else False
 
-                if form_data['count'] is not None:
+            do_translate = do_translate and translate_enabled
+
+            if mode == 'color':
+                if 'count' in form_data:
                     count = int(form_data['count'])
                 else:
                     count = 1
+
+                if 'detail' in form_data:
+                    detail_color_name_print = True if form_data['detail'] == 'true' else False
+                else:
+                    detail_color_name_print = False
 
                 color_res = analyze_color(image_path, count)
 
                 result = ''
                 for i in range(count):
-                    if do_translation:
-                        result = result + kakao_translator(color_res[i][1] + '.\n' + color_res[i][3] + '.\n', KAKAO_API_KEY)
+                    target = color_res[i][1] if detail_color_name_print else color_res[i][3]
+
+                    if do_translate:
+                        if detail_color_name_print is not True:
+                            target = target + ' color.'
+
+                        target = kakao_translator(target, KAKAO_API_KEY)
+                        target = target[:-1] if target[-1] == '.' else target
+
+                        if detail_color_name_print is True:
+                            target = target + '색'
                     else:
-                        result = result + color_res[i][1] + ', ' + color_res[i][3] + '\n'
+                        if detail_color_name_print:
+                            target = target + ' color'
+
+                    result = result + target + '\n'
+
+                result = result[:-1]
 
             elif mode == 'ocr':
                 result = kakao_ocr(image_path, KAKAO_API_KEY)
@@ -72,13 +94,15 @@ def rest(mode):
             elif mode == 'caption':
                 result = generate_caption(image_path)
 
-                if do_translation:
+                if do_translate:
                     result = kakao_translator('it seems like ' + result, KAKAO_API_KEY)
             else:
                 return 'Mode error: ' + mode, 500
 
             if not remain_upload_image:
                 os.remove(image_path)
+
+            print(result)
 
             return json.dumps({'result': result}, ensure_ascii=False), 200
         else:
@@ -105,7 +129,7 @@ def file_upload():
             caption = generate_caption(image_path)
             pre = 'it seems like '
 
-            if do_translation:
+            if translate_enabled:
                 korean_caption = kakao_translator(pre + caption, KAKAO_API_KEY)
 
                 return render_template('result.html', filename=filename, en_caption=caption, kr_caption=korean_caption)
