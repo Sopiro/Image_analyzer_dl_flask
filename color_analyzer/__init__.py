@@ -7,11 +7,11 @@ import cv2
 NUM_CLUSTERS = 5
 
 
-def analyze_color(image_path, candidates=2):
+def analyze_color(image_path, candidates=3):
     # Reading Image file
     img = image_to_numpy.load_image_file(image_path)
 
-    img = cv2.resize(img, (160, 160))
+    img = cv2.resize(img, (180, 180))
     ar = np.asarray(img)
 
     # Collapse image to rgb array
@@ -27,7 +27,7 @@ def analyze_color(image_path, candidates=2):
 
     counts, bins = np.histogram(vecs, len(codes))  # count occurrences
 
-    sorted_idx = np.argsort(counts)
+    sorted_idx = np.argsort(counts)[::-1]
 
     res = []
     for i in range(candidates):

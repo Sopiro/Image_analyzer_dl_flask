@@ -1645,16 +1645,16 @@ names = [
 ]
 
 shades = [
-    ["FF0000", "Red"],
-    ["FFA500", "Orange"],
-    ["FFFF00", "Yellow"],
-    ["008000", "Green"],
-    ["0000FF", "Blue"],
-    ["EE82EE", "Violet"],
-    ["A52A2A", "Brown"],
-    ["000000", "Black"],
-    ["808080", "Grey"],
-    ["FFFFFF", "White"]
+    ["FF0000", "Red", "빨강색"],
+    ["FFA500", "Orange", "주황색"],
+    ["FFFF00", "Yellow", "노랑색"],
+    ["008000", "Green", "초록색"],
+    ["0000FF", "Blue", "파란색"],
+    ["EE82EE", "Violet", "보라색"],
+    ["A52A2A", "Brown", "갈색"],
+    ["000000", "Black", "검정색"],
+    ["808080", "Grey", "회색"],
+    ["FFFFFF", "White", "흰색"]
 ]
 
 
@@ -1687,7 +1687,7 @@ for i in range(names.__len__()):
 def shadergb(shadename):
     for i in range(shades.__len__()):
         if shadename == shades[i][1]:
-            return "#" + shades[i][0]
+            return shades[i][2]
 
     return "#000000"
 
@@ -1731,4 +1731,4 @@ def name_str(rgb_str):
 
 
 if __name__ == '__main__':
-    print(name_str('6195ED'))
+    print(name_str('572b01'))

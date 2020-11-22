@@ -69,13 +69,11 @@ def rest(mode):
 
                     if do_translate:
                         if detail_color_name_print is not True:
-                            target = target + ' color.'
-
-                        target = kakao_translator(target, KAKAO_API_KEY)
-                        target = target[:-1] if target[-1] == '.' else target
-
-                        if detail_color_name_print is True:
-                            target = target + '색'
+                            target = color_res[i][2]
+                        else:
+                            target = kakao_translator(target, KAKAO_API_KEY)
+                            target = target[:-1] if target[-1] == '.' else target
+                            target = target + ' 색'
                     else:
                         if detail_color_name_print:
                             target = target + ' color'
@@ -97,7 +95,7 @@ def rest(mode):
                 result = generate_caption(image_path)
 
                 if do_translate:
-                    result = kakao_translator('it seems like ' + result, KAKAO_API_KEY)
+                    result = kakao_translator(result, KAKAO_API_KEY)
             else:
                 return 'Mode error: ' + mode, 500
 
