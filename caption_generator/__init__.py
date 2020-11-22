@@ -21,7 +21,7 @@ hidden_layer = image_model.layers[-1].output
 
 image_features_extract_model = tf.keras.Model(new_input, hidden_layer)
 
-with open(os.path.dirname(__file__) + '/tokenizer.json') as f:
+with open(os.path.dirname(__file__) + '/checkpoints/v1/tokenizer.json') as f:
     data = json.load(f)
     tokenizer = tf.keras.preprocessing.text.tokenizer_from_json(data)
 
@@ -42,7 +42,7 @@ transformer = Transformer(enc_layers, dec_layers, d_model, num_heads, dff,
                           pe_target=max_position_encodings,
                           dropout_rate=dropout_rate)
 
-checkpoint_path = os.path.dirname(__file__) + '/checkpoints'
+checkpoint_path = os.path.dirname(__file__) + '/checkpoints/v1'
 
 ckpt = tf.train.Checkpoint(transformoer=transformer)
 ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=5)
