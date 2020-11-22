@@ -62,7 +62,7 @@ def kakao_ocr(image_path: str, api_key: str):
         os.remove(resize_impath)
 
     if len(api_response['result']) == 0:
-        return 'No words found'
+        return -1
 
     result = [token['recognition_words'][0] for token in api_response['result']]
 

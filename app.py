@@ -19,10 +19,6 @@ KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-ai_program = {'color': analyze_color,
-              'ocr': kakao_ocr,
-              'caption': generate_caption}
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -90,6 +86,12 @@ def rest(mode):
 
             elif mode == 'ocr':
                 result = kakao_ocr(image_path, KAKAO_API_KEY)
+
+                if result == -1:
+                    if do_translate:
+                        result = '문자를 찾을 수 없습니다.'
+                    else:
+                        result = 'No words found'
 
             elif mode == 'caption':
                 result = generate_caption(image_path)
