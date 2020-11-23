@@ -2,6 +2,7 @@ import math
 import colorsys
 import binascii
 
+# https://chir.ag/projects/ntc/ntc.js
 names = [
     ["35312C", "Acadia", "Brown"],
     ["75AA94", "Acapulco", "Green"],
