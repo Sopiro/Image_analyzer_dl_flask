@@ -13,7 +13,7 @@ app.debug = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.secret_key = 'sopiro'
 
-translate_enabled = True
+translate_enabled = False
 remain_upload_image = True
 KAKAO_API_KEY = '1b9ef11c3bdeaa8cb71013c0e2ecb9f9'
 
@@ -117,6 +117,8 @@ def file_upload():
 
         f = request.files['file']
 
+        option = request.form['radio_grp']
+
         if f.filename == '':
             flash('파일을 선택해 주세요')
             return redirect('/')
@@ -126,15 +128,22 @@ def file_upload():
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
             image_path = os.path.abspath('static/uploads/' + filename)
-            caption = generate_caption(image_path)
-            pre = 'it seems like '
+
+            result = ''
+
+            if option == 'caption':
+                result = generate_caption(image_path)
+            elif option == 'color':
+                result = analyze_color(image_path)
+            elif option == 'text':
+                result = kakao_ocr(image_path, KAKAO_API_KEY)
 
             if translate_enabled:
-                korean_caption = kakao_translator(pre + caption, KAKAO_API_KEY)
+                korean_caption = kakao_translator(result, KAKAO_API_KEY)
 
-                return render_template('result.html', filename=filename, en_caption=caption, kr_caption=korean_caption)
+                return render_template('result.html', filename=filename, en_caption=result, kr_caption=korean_caption)
             else:
-                return render_template('result.html', filename=filename, en_caption=caption)
+                return render_template('result.html', filename=filename, en_caption=result)
         else:
             return redirect('/')
 
@@ -151,12 +160,6 @@ def delete_file(filename):
     except FileNotFoundError:
         pass
     return redirect(url_for('index'))
-
-
-# @app.teardown_request
-# def teardown_request(ex):
-#     for f in os.listdir(app.config['UPLOAD_FOLDER']):
-#         os.remove(f)
 
 
 if __name__ == '__main__':

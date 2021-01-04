@@ -126,7 +126,7 @@ def generate_caption(image):
     return decode(result.numpy())
 
 
-print(generate_caption('C:/Users/Sopiro/Desktop/20200825/uchan.jpg'))
+print(generate_caption('C:/Users/Sopiro/uchan.jpg'))
 
 # if __name__ == '__main__':
 #     image_url = 'https://tensorflow.org/images/surf.jpg'

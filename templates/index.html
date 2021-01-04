@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <head>
-    <title>캡션 생성기</title>
+    <title>Image Analyzer</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<h1>파일을 선택하세요</h1>
+<h1>Select A Image File</h1>
 {% with msg = get_flashed_messages() %}
 {% if msg %}
 <p>{{msg[0]}}</p>
@@ -14,6 +14,12 @@
 <form method="POST"
       action="/fileUpload"
       enctype="multipart/form-data">
+
+    <input type="radio" name="radio_grp" value="caption" checked="checked">Image Captioning
+    <input type="radio" name="radio_grp" value="text">Text Analysis
+    <input type="radio" name="radio_grp" value="color">Color Analysis
+    <br>
+    <br>
     <input type="file" name="file" accept="image/*"/>
     <input type="submit" value="전송"/>
 </form>
