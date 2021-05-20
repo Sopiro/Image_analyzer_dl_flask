@@ -6,15 +6,15 @@ Analyze the image in terms of three aspect(captioning, text recognition, color a
 
 ## Implementation
 
-#### Image captioning
-Faster R-CNN or Efficientnet-B4 feature extraction → Transformer network
-(Efficientnet-B4 extraction is used in this video demonstration)
+- #### Image captioning
+  Faster R-CNN or Efficientnet-B4 feature extraction → Transformer network (Efficientnet-B4 extraction is used in this video demonstration)
 
-#### Text recognition
-Kakao OCR api (https://vision-api.kakao.com/#ocr)
 
-#### Color analysis
-Execute k-Means clustering on image pixels → Table matching (Color table comes from https://chir.ag/projects/name-that-color)
+- #### Text recognition
+  Kakao OCR api (https://vision-api.kakao.com/#ocr)
+
+- #### Color analysis
+  Execute k-Means clustering on image pixels → Table matching (Color table comes from https://chir.ag/projects/name-that-color)
 
 
 ## Sources
