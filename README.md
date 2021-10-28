@@ -1,8 +1,9 @@
 # Machine Learning based Image Analyzing Server
 
-Image analyzing flask web server. [Demo Video](https://youtu.be/bLvkysDbCZs)
+Image analyzing flask web server.  
+Analyze the image from three aspects. (Captioning, Text recognition, Color analyzing)  
 
-Analyze the image in terms of three aspect(captioning, text recognition, color analyzing)
+Demo Video: https://youtu.be/bLvkysDbCZs
 
 ## Implementation
 
